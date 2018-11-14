@@ -29,8 +29,10 @@
 from Card import Card
 #Deck class
 from Deck import Deck
-#Player and team classes
-from Player import Player, Team
+#Player, team, and computer player classes
+from Player import Player
+from Player import Team
+from Player import Comm
 #Filters a 52 card deck into a Kout deck
 def Filter (Deck) :
 
@@ -102,75 +104,91 @@ def initialize (players) :
 
 		for i in range(0, 4) :
 
-			print(players[i])
+			if players[i].comm == False :
 
-			answer = input("Do you want to challenge?\n")
+				print(players[i])
 
-			if str(answer).lower() == "yes" or str(answer).lower() == "y" :
+				answer = input("Do you want to challenge?\n")
 
-				#bet is the variable that holds the declaration value, high holds the highest declaration value thus far
+				if str(answer).lower() == "yes" or str(answer).lower() == "y" :
 
-				bet = 0
+					#bet is the variable that holds the declaration value, high holds the highest declaration value thus far
 
-				while (bet < 5 or bet > 8) :
+					bet = 0
 
-					#xcr and xer are check booleans to loop back for error in input value
+					while (bet < 5 or bet > 8) :
 
-					xer = True
+						#xcr and xer are check booleans to loop back for error in input value
 
-					xcr = True
+						xer = True
 
-					while xer == True or xcr == True :
+						xcr = True
 
-						bet = input("How Much? \n")
+						while xer == True or xcr == True :
 
-						if str(bet).isnumeric() == True :	
+							bet = input("How Much? \n")
 
-							bet = int(bet)
+							if str(bet).isnumeric() == True :	
 
-							xer = False
+								bet = int(bet)
 
-							if bet > 4 and bet > high and bet < 9 :
+								xer = False
 
-								high = bet 
+								if bet > 4 and bet > high and bet < 9 :
 
-								lastPlayer = i
+									high = bet 
 
-								xcr = False
+									lastPlayer = i
 
-								#xbr is a check boolean to loop back for error in input value
+									xcr = False
 
-								xbr = True
+									#xbr is a check boolean to loop back for error in input value
 
-								while xbr == True :
+									xbr = True
 
-									HK = input("Choose your suite:\n1) Diamonds\n2) Hearts\n3) Spades\n4) Clovers\n")
+									while xbr == True :
 
-									if HK.isnumeric() == True :
+										HK = input("Choose your suite:\n1) Diamonds\n2) Hearts\n3) Spades\n4) Clovers\n")
 
-										if int(HK) >= 1 and int(HK) <= 4 :
+										if HK.isnumeric() == True :
 
-											HK = int(HK)
+											if int(HK) >= 1 and int(HK) <= 4 :
 
-											HK = suites[HK - 1]
+												HK = int(HK)
 
-											xbr = False
+												HK = suites[HK - 1]
 
-										else :
+												xbr = False
+
+											else :
+
+												print("Invalid input\nTry again.\n\n")
+
+										else: 
 
 											print("Invalid input\nTry again.\n\n")
 
-									else: 
+								else :
 
-										print("Invalid input\nTry again.\n\n")
+									print("Invalid input\nTry again.\n\n")
 
-							else :
+							else:
 
-								print("Invalid input\nTry again.\n\n")
+								print("\nInvalid input\nTry Again.\n\n")
 
-						else:
+			#If the player is a computer player, it resorts to the declare function in the Comm class
 
-							print("\nInvalid input\nTry Again.\n\n")
+			else :
+
+				if high < 5 :
+
+					lastPlayer = i
+
+					high = players[i].com.declare()[0]
+
+					HK = players[i].com.declare()[1]
+
+					HK = suites[HK - 1]
 
 			#8 is the highest value, so if a player declares 8, no one can one-up that so the loop breaks
 
@@ -294,6 +312,7 @@ def checkWin (bet, rounds) :
 
 #rounds is the function that actually runs the game, or the rounds, and returns the amount of points for the declaring team
 
+
 def rounds (players, stage, bet, challenger) :
 
 	global HK
@@ -302,59 +321,72 @@ def rounds (players, stage, bet, challenger) :
 
 	if stage < 8 :
 
+		print("Declarer: " + players[0].name)
+
+		print("Amount: " + str(bet) + " Rounds")
+
+		print("\n\nDominant Suite: " + HK)
+
 		pile = []
 
-		print(players[0])
+		if players[0].comm == False :
 
-		#Players can't start with the joker, so if they don't have another card to play, the other team automatically wins
+			print(players[0])
 
-		if stage == 7 and players[0].hand.deck[0].suite == "Joker" :
+			#Players can't start with the joker, so if they don't have another card to play, the other team automatically wins
 
-			print("Oops!\nLooks like you held on to that joker a little too long.")
+			if stage == 7 and players[0].hand.deck[0].suite == "Joker" :
 
-			if players[0].team == challenger.team :
+				print("Oops!\nLooks like you held on to that joker a little too long.")
 
-				return checkWin(bet, 0)
+				if players[0].team == challenger.team :
 
-			else :
-
-				return checkWin(bet, 8)
-
-		#xer is a check boolean to loop back in case of input errors
-
-		xer = True
-
-		#This part is only for the player starting the round
-
-		while xer == True :
-
-			card = input("Play a card:\n")
-
-			if card.isnumeric() == True :
-
-				card = int(card)
-
-				if card > 0 and card <= len(players[0].hand.deck) :
-
-					card = int(card) - 1
-
-					if players[0].hand.deck[card].suite != "Joker" :
-		
-						xer = False
-
-					#Players can't start with the joker
-
-					else:
-
-						print("\nYou can't start with the joker\nTry Again.\n\n")
+					return checkWin(bet, 0)
 
 				else :
 
+					return checkWin(bet, 8)
+
+			#xer is a check boolean to loop back in case of input errors
+
+			xer = True
+
+			#This part is only for the player starting the round
+
+			while xer == True :
+
+				card = input("Play a card:\n")
+
+				if card.isnumeric() == True :
+
+					card = int(card)
+
+					if card > 0 and card <= len(players[0].hand.deck) :
+
+						card = int(card) - 1
+
+						if players[0].hand.deck[card].suite != "Joker" :
+			
+							xer = False
+
+						#Players can't start with the joker
+
+						else:
+
+							print("\nYou can't start with the joker\nTry Again.\n\n")
+
+					else :
+
+						print("\nInvalid input\nTry Again.\n\n")
+
+				else:
+
 					print("\nInvalid input\nTry Again.\n\n")
+		#If the player's a computer, it resorts to the playCard function in the Comm class
 
-			else:
+		else :
 
-				print("\nInvalid input\nTry Again.\n\n")
+			card = players[0].com.playCard()
 
 		#roundSuite stores the round's suite
 
@@ -368,47 +400,67 @@ def rounds (players, stage, bet, challenger) :
 
 		for i in range(1, len(players)) :
 
-			print("\nCurrent pile:")
+			if players[i].comm == False : 
 
-			for j in range(0, len(pile)) :
+				print("\nCurrent pile:")
 
-				print(str(pile[j]))
+				for j in range(0, len(pile)) :
 
-			print(players[i])
+					print(str(pile[j]))
 
-			xer = True
+				print("\n\nDominant Suite: " + HK)
 
-			while xer == True :
+				print("Round Suite: " + roundSuite)
 
-				card = input("Play a card:\n")
+				print(players[i])
 
-				if card.isnumeric() == True :
+				xer = True
 
-					card = int(card)
+				while xer == True :
 
-					if card > 0 and card <= len(players[i].hand.deck) :
+					card = input("Play a card:\n")
 
-						card = int(card) - 1
+					if card.isnumeric() == True :
 
-						#Checks if the player has the round's suite, and if they do, it doesn't allow them to play another suite aside from the Joker
+						card = int(card)
 
-						if suiteCheck(players[i], roundSuite) == True and players[i].hand.deck[card].suite != roundSuite and players[i].hand.deck[card].suite != "Joker" :
+						if card > 0 and card <= len(players[i].hand.deck) :
 
-							print("Suite invalid.\nTry Again.\n\n")
+							card = int(card) - 1
+
+							#Checks if the player has the round's suite, and if they do, it doesn't allow them to play another suite aside from the Joker
+
+							if suiteCheck(players[i], roundSuite) == True and players[i].hand.deck[card].suite != roundSuite and players[i].hand.deck[card].suite != "Joker" :
+
+								print("Suite invalid.\nTry Again.\n\n")
+
+							else :
+
+								pile.append(players[i].hand.playCard(card))
+
+								xer = False
 
 						else :
 
-							pile.append(players[i].hand.playCard(card))
+							print("\nInvalid input\nTry Again.\n\n")
 
-							xer = False
-
-					else :
+					else:
 
 						print("\nInvalid input\nTry Again.\n\n")
 
-				else:
+			#If the player's a computer, it resorts to the commPlay method in the Comm class
+			
+			else :
 
-					print("\nInvalid input\nTry Again.\n\n")
+				pile.append(players[i].com.commPlay(roundSuite))
+
+		print("\nCurrent pile:")
+
+		for j in range(0, len(pile)) :
+
+			print(str(pile[j]))
+
+		print("\n")
 
 		#Returns the position of the winning player in the (players) list
 
@@ -430,25 +482,49 @@ def rounds (players, stage, bet, challenger) :
 
 	return checkWin(bet, challenger.team.rounds)
 
-#Pre-Initialization, setting player names
+#Pre-Initialization, setting player names, to initialize a comm player, you have to start the name with "comm" no case sensitivity
 
-print("\n\n\nWelcome to Kout :)\n\n\n")
+print("\n\n\nWelcome to Kout :)\n\nTo add a computer layer, start the player name with 'comm.'\nExample: Player 1 Name: commBasic\n\n\n")
 
 scanner = str(input ("Player 1 Name: "))
 
-player1 = Player(scanner)
+if scanner.lower().startswith("comm") == True :
+
+	player1 = Player(scanner, True)
+
+else: 
+
+	player1 = Player(scanner)
 
 scanner = str(input ("Player 2 Name: "))
 
-player2 = Player(scanner)
+if scanner.lower().startswith("comm") == True :
+
+	player2 = Player(scanner, True)
+
+else: 
+
+	player2 = Player(scanner)
 
 scanner = str(input ("Player 3 Name: "))
 
-player3 = Player(scanner)
+if scanner.lower().startswith("comm") == True :
+
+	player3 = Player(scanner, True)
+
+else: 
+
+	player3 = Player(scanner)
 
 scanner = str(input ("Player 4 Name: "))
 
-player4 = Player(scanner)
+if scanner.lower().startswith("comm") == True :
+
+	player4 = Player(scanner, True)
+
+else: 
+
+	player4 = Player(scanner)
 
 #Players facing each other are in the same team, hence, 1 and 3 are the same team, same goes for 2 and 4
 
