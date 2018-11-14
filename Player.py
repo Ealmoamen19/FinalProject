@@ -4,6 +4,8 @@
 #Honor Pledge: I have not given nor recieved any unauthorized aid
 
 #Sources:
+#https://stackoverflow.com/questions/27694357/python-cannot-import-name
+#http://letzgro.net/blog/creating-ai-using-python/
 
 #Description: This is a class that holds all the player's properties and the team's properties since this game is based on teams.
 #This class also holds the playing strategy and functions for computer players
